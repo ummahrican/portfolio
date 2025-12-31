@@ -5,7 +5,7 @@
 </div>
 <br>
 <p align="center">
-  <img src="https://img.shields.io/badge/python-3.11+-blue.svg" alt="Python Version">
+  <img src="https://img.shields.io/badge/python-3.12+-blue.svg" alt="Python Version">
   <img src="https://img.shields.io/badge/FastHTML-0.12+-teal.svg" alt="FastHTML Version">
   <img src="https://img.shields.io/badge/BasecoatUI-0.3.9-orange.svg" alt="BasecoatUI Version">
   <img src="https://img.shields.io/github/languages/code-size/ummahrican/portfolio" alt="GitHub code size in bytes">
@@ -13,11 +13,15 @@
 
 Ummahrican is a personal blog and portfolio site showcasing DevOps content, technical projects, and micro-SaaS ventures. Built for sponsored content opportunities with platforms like Fly.io and Digital Ocean.
 
+## 💾 Tech Stack
+
+This project uses [FastHTML](https://fasthtml.dev) for the backend and [BasecoatUI](https://basecoatui.com) for styling - a shadcn/ui-style component library that works without React.
+
 ## 📖 Prerequisites
 
-In order to run the project we need `python>=3.11` and `uv` for package management.
+In order to run the project we need `python>=3.12` and `uv` for package management.
 
-Install uv following the [official repo](https://github.com/astral-sh/uv?tab=readme-ov-file#getting-started)
+Install uv following the [official repo](https://docs.astral.sh/uv/getting-started)
 
 ## 🖥️ Local development
 
@@ -38,6 +42,12 @@ To upgrade packages to latest version for maintenance:
 ```shell
 uv sync --upgrade
 ```
+
+### Testing with HTTP/2
+
+mkdir -p certs
+openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes
+uv run python main.py --ssl
 
 ## 📦 Docker builds
 
@@ -67,35 +77,13 @@ uvx ruff format
 
 ## 🚀 Production deployment
 
-Deploy to Fly.io:
-
-```shell
-fly auth login
-fly launch
-fly deploy
-```
-
-Or use the included `fly.toml` configuration.
+### TBD
 
 ## 🎭 Customization
 
 ### Adding Blog Posts
 
-Edit the `blog_posts` list in `main.py`:
-
-```python
-blog_posts = [
-    {
-        "slug": "your-post-slug",
-        "title": "Your Post Title",
-        "excerpt": "Brief description...",
-        "date": "2024-12-30",
-        "tags": ["Kubernetes", "DevOps"],
-        "reading_time": "5 min",
-        "featured": True
-    },
-]
-```
+### TBD
 
 ### Color Palette
 
@@ -106,18 +94,14 @@ blog_posts = [
 | Saffron    | `#E8A838` | Highlights       |
 | Deep Blue  | `#1E3A5F` | Headers          |
 
-## 💾 Tech Stack
-
-This project uses [FastHTML](https://fasthtml.dev) for the backend and [BasecoatUI](https://basecoatui.com) for styling - a shadcn/ui-style component library that works without React.
-
 ## 🤝 Contributing
 
 This is a personal blog template. Feel free to fork and customize for your own use!
 
 ## 🍕 Community
 
-Questions or feedback? Reach out on [Twitter/X](https://twitter.com/yourusername) or [LinkedIn](https://linkedin.com/in/yourusername).
+Questions or feedback? Reach out on [LinkedIn](https://www.linkedin.com/in/anmustafa)
 
 ## ⚖️ LICENSE
 
-MIT © [ahmed.dev](LICENSE)
+MIT
