@@ -1,0 +1,66 @@
+/* HTMS Streaming States */
+
+.htms-placeholder {
+  min-height: 2rem;
+}
+
+.htms-loaded {
+  animation: htms-fade-in 0.3s ease-out;
+}
+
+@keyframes htms-fade-in {
+  from { opacity: 0.5; }
+  to { opacity: 1; }
+}
+
+.htms-error-state {
+  border: 1px dashed oklch(var(--destructive, 0.55 0.2 25));
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background: oklch(var(--destructive, 0.55 0.2 25) / 0.05);
+}
+
+.htms-retrying {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Skeleton animations */
+.htms-skeleton {
+  background: linear-gradient(
+    90deg,
+    oklch(var(--muted, 0.9 0.01 90)) 25%,
+    oklch(var(--muted-foreground, 0.6 0.01 90) / 0.1) 50%,
+    oklch(var(--muted, 0.9 0.01 90)) 75%
+  );
+  background-size: 200% 100%;
+  animation: htms-shimmer 1.5s infinite;
+  border-radius: 0.25rem;
+}
+
+@keyframes htms-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Error state improvements */
+.htms-error button {
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.htms-error button:hover {
+  opacity: 0.8;
+}
+
+/* Accessibility: Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .htms-skeleton {
+    animation: none;
+    background: oklch(var(--muted, 0.9 0.01 90));
+  }
+  
+  .htms-loaded {
+    animation: none;
+  }
+}

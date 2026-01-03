@@ -1,11 +1,12 @@
 """
-API and utility routes: sitemap, robots.txt, RSS feed, health checks.
+API and utility routes: sitemap, robots.txt, RSS feed, health checks, and CMS admin.
 """
 
 from datetime import datetime
 
 from starlette.responses import Response
-from starlette.routing import Route
+from starlette.routing import Route, Mount
+from starlette.staticfiles import StaticFiles
 
 from app.config import SITE
 from app.seo import generate_sitemap, generate_robots_txt
@@ -68,7 +69,7 @@ def generate_atom_feed(posts: list) -> str:
     <updated>{updated}</updated>
     <summary><![CDATA[{post.get("excerpt", "")}]]></summary>
     <author>
-      <n>{SITE.author}</n>
+      <name>{SITE.author}</name>
       <email>{SITE.author_email}</email>
     </author>
     {chr(10).join(f'    <category term="{tag}"/>' for tag in post.get("tags", []))}
@@ -83,7 +84,7 @@ def generate_atom_feed(posts: list) -> str:
   <id>{SITE.base_url}/</id>
   <updated>{datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}</updated>
   <author>
-    <n>{SITE.author}</n>
+    <name>{SITE.author}</name>
     <email>{SITE.author_email}</email>
   </author>
 {chr(10).join(entries)}
@@ -133,9 +134,20 @@ async def atom_feed_endpoint(request):
 
 
 def register_routes(app, rt):
-    """Register API and utility routes."""
+    """Register API and utility routes, including Decap CMS admin."""
 
-    # Insert routes at the BEGINNING to take priority over static file handler
+    # Mount Decap CMS admin interface FIRST (highest priority)
+    # This serves the static admin files at /admin/*
+    app.routes.insert(
+        0,
+        Mount(
+            "/admin",
+            app=StaticFiles(directory="static/admin", html=True),
+            name="admin",
+        ),
+    )
+
+    # Insert utility routes at the beginning to take priority over static file handler
     app.routes.insert(0, Route("/sitemap.xml", sitemap_endpoint))
     app.routes.insert(0, Route("/robots.txt", robots_endpoint))
     app.routes.insert(0, Route("/feed.xml", rss_feed_endpoint))
