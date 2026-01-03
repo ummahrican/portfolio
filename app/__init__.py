@@ -330,6 +330,10 @@ def create_headers() -> tuple:
         Link(rel="icon", type="image/png", href="/static/favicon.png"),
         # Custom styles
         Style(CUSTOM_CSS),
+        # HTMS streaming CSS (optional - only include if using streaming)
+        Link(rel="stylesheet", href="/static/htms.css"),
+        # HTMS streaming JS (optional - only include if using streaming)
+        Script(src="/static/htms.js", defer=True),
     )
 
 
