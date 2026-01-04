@@ -1,81 +1,76 @@
 """
-Layout components: Navbar, Footer, and page wrappers.
+Shared layout templates.
+- Page: base wrapper with nav/footer
+- ListPage: renders any content collection
+- DetailPage: renders any single content item
 """
 
 from fasthtml.common import (
-    Header,
-    Nav,
-    Div,
-    A,
-    Span,
-    Button,
-    Footer,
-    P,
-    H4,
+    Html,
+    Head,
     Title,
     Body,
-    Script,
     Main,
+    Header,
+    Footer,
+    Nav,
+    Section,
+    Article,
+    Div,
+    A,
+    H1,
+    H2,
+    H3,
+    P,
+    Span,
+    NotStr,
+    Script,
+    Meta,
+    Link,
+    Style,
 )
-
 from app.config import SITE, NAV_ITEMS, FOOTER_NAV
-from app.seo import (
-    meta_tags,
-    structured_data_website,
-    structured_data_person,
-)
+
+
+def get_headers():
+    """CSS/JS headers."""
+    return (
+        Script(
+            src="https://cdn.tailwindcss.com",
+        ),
+        Link(
+            rel="stylesheet",
+            href="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.9/dist/basecoat.cdn.min.css",
+        ),
+        Script(
+            src="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.9/dist/js/all.min.js",
+            defer=True,
+        ),
+    )
 
 
 def Navbar():
-    """Site navigation header."""
+    """Site navigation."""
     return Header(
         Nav(
-            Div(
-                A(
-                    Span("✦ ", cls="text-[oklch(0.75_0.15_85)]"),
-                    Span(SITE.name, cls="font-bold"),
-                    href="/",
-                    cls="text-xl text-white flex items-center",
-                ),
-                cls="flex items-center",
+            A(
+                Span("✦ ", cls="text-[oklch(0.75_0.15_85)]"),
+                Span(SITE.name, cls="font-bold"),
+                href="/",
+                cls="text-xl text-white",
             ),
-            # Desktop navigation
             Div(
                 *[
                     A(
                         item["label"],
                         href=item["href"],
-                        cls="text-white/80 hover:text-white px-4 py-2 transition-colors",
+                        cls="text-white/80 hover:text-white px-4 py-2",
                     )
                     for item in NAV_ITEMS
                 ],
-                cls="hidden md:flex items-center gap-2",
-            ),
-            # Mobile menu button
-            Button(
-                Span(cls="sr-only", _="Menu"),
-                Div(
-                    Span(cls="block w-5 h-0.5 bg-white mb-1"),
-                    Span(cls="block w-5 h-0.5 bg-white mb-1"),
-                    Span(cls="block w-5 h-0.5 bg-white"),
-                ),
-                cls="md:hidden p-2",
-                onclick="document.getElementById('mobile-menu').classList.toggle('hidden')",
+                cls="hidden md:flex gap-2",
             ),
             cls="flex justify-between items-center max-w-6xl mx-auto px-6 py-4",
-        ),
-        # Mobile navigation
-        Nav(
-            *[
-                A(
-                    item["label"],
-                    href=item["href"],
-                    cls="block text-white/80 hover:text-white px-6 py-3 border-b border-white/10",
-                )
-                for item in NAV_ITEMS
-            ],
-            id="mobile-menu",
-            cls="hidden md:hidden bg-[oklch(0.30_0.08_250)]",
         ),
         cls="bg-[oklch(0.35_0.08_250)] sticky top-0 z-50",
     )
@@ -87,19 +82,17 @@ def SiteFooter():
         Div(cls="footer-bar"),
         Div(
             Div(
-                # Brand
                 Div(
                     A(
                         Span("✦ ", cls="text-accent"),
-                        Span(SITE.name, cls="font-bold"),
+                        Span(SITE.name),
                         href="/",
-                        cls="text-xl text-white mb-4 block",
+                        cls="text-xl text-white mb-4 block font-bold",
                     ),
                     P(SITE.tagline, cls="text-white/60 text-sm"),
                 ),
-                # Navigation
                 Div(
-                    H4("Navigation", cls="text-white font-semibold mb-4"),
+                    H3("Navigation", cls="text-white font-semibold mb-4"),
                     *[
                         A(
                             item["label"],
@@ -109,9 +102,8 @@ def SiteFooter():
                         for item in FOOTER_NAV["navigation"]
                     ],
                 ),
-                # Work with me
                 Div(
-                    H4("Work With Me", cls="text-white font-semibold mb-4"),
+                    H3("Work With Me", cls="text-white font-semibold mb-4"),
                     *[
                         A(
                             item["label"],
@@ -123,24 +115,8 @@ def SiteFooter():
                 ),
                 cls="grid md:grid-cols-3 gap-8 py-12 px-6 max-w-6xl mx-auto",
             ),
-            # Copyright
             Div(
-                P(
-                    f"© {SITE.author}. Built with ",
-                    A(
-                        "FastHTML",
-                        href="https://fasthtml.dev",
-                        cls="text-accent hover:underline",
-                    ),
-                    " & ",
-                    A(
-                        "BasecoatUI",
-                        href="https://basecoatui.com",
-                        cls="text-accent hover:underline",
-                    ),
-                    ".",
-                    cls="text-white/40 text-sm",
-                ),
+                P(f"© {SITE.author}", cls="text-white/40 text-sm"),
                 cls="border-t border-white/10 py-6 px-6 text-center",
             ),
         ),
@@ -148,132 +124,141 @@ def SiteFooter():
     )
 
 
-def PageHead(
-    title: str,
-    description: str,
-    url: str,
-    article: bool = False,
-    **seo_kwargs,
-):
-    """
-    Generate the <head> contents with SEO meta tags.
-
-    This should be used within Title() or as part of hdrs.
-    """
-    metas = meta_tags(title, description, url, article=article, **seo_kwargs)
-    return metas
-
-
-def Page(
-    *children,
-    title: str = SITE.name,
-    description: str = SITE.description,
-    url: str = "/",
-    article: bool = False,
-    include_structured_data: bool = True,
-    **seo_kwargs,
-):
-    """
-    Full page wrapper with layout and SEO.
-
-    Usage:
-        return Page(
-            content_here,
-            title="My Page",
-            description="Page description",
-            url="/my-page"
-        )
-    """
-    structured_data = []
-    if include_structured_data:
-        structured_data = [structured_data_website(), structured_data_person()]
-
+def Page(*children, title: str = SITE.name, description: str = SITE.description):
+    """Base page wrapper."""
     full_title = f"{title} | {SITE.name}" if title != SITE.name else title
+    from app import CUSTOM_CSS, TAILWIND_CONFIG
 
-    return (
-        Title(full_title),
-        *meta_tags(title, description, url, article=article, **seo_kwargs),
-        *structured_data,
+    return Html(
+        Head(
+            Meta(charset="utf-8"),
+            Meta(name="viewport", content="width=device-width, initial-scale=1"),
+            Title(full_title),
+            Meta(name="description", content=description[:160]),
+            *get_headers(),
+            Script(TAILWIND_CONFIG),
+            Style(CUSTOM_CSS),
+        ),
         Body(
             Navbar(),
             Main(*children),
-            Footer(),
-            Script("lucide.createIcons();"),
-            cls="bg-background text-foreground min-h-screen",
-        ),
-    )
-
-
-def ArticlePage(
-    *children,
-    title: str,
-    description: str,
-    url: str,
-    published_time: str = None,
-    modified_time: str = None,
-    tags: list[str] = None,
-    breadcrumb_items: list[tuple[str, str]] = None,
-    faqs: list[dict] = None,
-):
-    """
-    Article page wrapper with enhanced SEO for blog posts.
-
-    Args:
-        faqs: List of {"question": "...", "answer": "..."} for FAQ schema (GEO optimization)
-    """
-    from app.seo import (
-        structured_data_article,
-        structured_data_breadcrumb,
-        structured_data_faq,
-    )
-    from app.components import Breadcrumb
-
-    structured_data = [
-        structured_data_website(),
-        structured_data_article(
-            title=title,
-            description=description,
-            url=url,
-            published=published_time,
-            modified=modified_time,
-            tags=tags,
-        ),
-    ]
-
-    if breadcrumb_items:
-        structured_data.append(structured_data_breadcrumb(breadcrumb_items))
-
-    # Add FAQ schema for GEO (Generative Engine Optimization)
-    if faqs:
-        faq_schema = structured_data_faq(faqs)
-        if faq_schema:
-            structured_data.append(faq_schema)
-
-    full_title = f"{title} | {SITE.name}"
-
-    return (
-        Title(full_title),
-        *meta_tags(
-            title,
-            description,
-            url,
-            article=True,
-            published_time=published_time,
-            modified_time=modified_time,
-            tags=tags,
-        ),
-        *structured_data,
-        Body(
-            Navbar(),
-            Main(
-                Div(
-                    Breadcrumb(breadcrumb_items) if breadcrumb_items else None,
-                    *children,
-                    cls="max-w-4xl mx-auto px-6 py-12",
-                ),
-            ),
             SiteFooter(),
-            Script("lucide.createIcons();"),
+            Script("if(window.lucide)lucide.createIcons();"),
             cls="bg-background text-foreground min-h-screen",
         ),
+        lang="en",
+    )
+
+
+def ContentCard(item: dict, base_url: str):
+    """Shared card component for list pages."""
+    return Article(
+        A(
+            Div(
+                Div(
+                    *[
+                        Span(tag, cls="badge badge-outline text-xs")
+                        for tag in (item.get("tags") or [])[:3]
+                    ],
+                    cls="flex flex-wrap gap-1 mb-2",
+                )
+                if item.get("tags")
+                else None,
+                H3(
+                    item["title"],
+                    cls="text-lg font-semibold mb-2 group-hover:text-primary",
+                ),
+                P(
+                    item.get("summary", "")[:150],
+                    cls="text-muted-foreground text-sm mb-3",
+                ),
+                Span(item.get("date", ""), cls="text-xs text-muted-foreground")
+                if item.get("date")
+                else None,
+                cls="p-4",
+            ),
+            href=f"{base_url}/{item['slug']}",
+            cls="group block",
+        ),
+        cls="card card-hover",
+    )
+
+
+def ListPage(items: list, title: str, base_url: str, description: str = ""):
+    """
+    Shared list template for blog, portfolio, projects.
+    Renders title, summary, date sorted by date desc.
+    """
+    return Page(
+        Section(
+            Div(
+                H1(title, cls="text-3xl font-bold font-display mb-8"),
+                Div(
+                    *[ContentCard(item, base_url) for item in items],
+                    cls="grid md:grid-cols-2 lg:grid-cols-3 gap-6",
+                )
+                if items
+                else P("No content yet.", cls="text-muted-foreground"),
+                cls="max-w-6xl mx-auto px-6",
+            ),
+            cls="py-16",
+        ),
+        title=title,
+        description=description or f"Browse {title.lower()} on {SITE.name}",
+    )
+
+
+def DetailPage(item: dict, back_url: str, back_label: str):
+    """
+    Shared detail template for any content type.
+    Renders full markdown content with title, date, tags.
+    """
+    return Page(
+        Section(
+            Div(
+                A(
+                    f"← {back_label}",
+                    href=back_url,
+                    cls="text-muted-foreground hover:text-primary text-sm mb-6 inline-block",
+                ),
+                Article(
+                    Header(
+                        Div(
+                            *[
+                                Span(tag, cls="badge badge-outline")
+                                for tag in (item.get("tags") or [])
+                            ],
+                            cls="flex flex-wrap gap-2 mb-4",
+                        )
+                        if item.get("tags")
+                        else None,
+                        H1(item["title"], cls="text-4xl font-bold font-display mb-4"),
+                        P(item.get("date", ""), cls="text-muted-foreground")
+                        if item.get("date")
+                        else None,
+                        Div(cls="divider-gradient w-24 my-8"),
+                    ),
+                    Div(
+                        NotStr(item.get("content", "")), cls="prose prose-lg max-w-none"
+                    ),
+                ),
+                cls="max-w-4xl mx-auto px-6",
+            ),
+            cls="py-16",
+        ),
+        title=item["title"],
+        description=item.get("summary", item["title"]),
+    )
+
+
+def NotFoundPage(title: str, message: str, back_url: str, back_label: str):
+    """Shared 404 page."""
+    return Page(
+        Div(
+            H1(title, cls="text-4xl font-bold font-display mb-4"),
+            P(message, cls="text-muted-foreground mb-6"),
+            A(f"← {back_label}", href=back_url, cls="btn btn-primary"),
+            cls="text-center py-20 px-6 max-w-xl mx-auto",
+        ),
+        title=title,
     )
